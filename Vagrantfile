@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "kdhira-centos7"
+  config.vm.box = "centos/7"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -24,7 +24,6 @@ Vagrant.configure("2") do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
   # config.vm.network "forwarded_port", guest: 3000, host: 3000
-  config.vm.network "private_network", ip: "192.168.50.4"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
@@ -34,6 +33,7 @@ Vagrant.configure("2") do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.50.4"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder "/Users/kevinhira/wasatch", "/home/vagrant/wasatch", create: true
+  config.vm.synced_folder "~/vagrantsync", "/home/vagrant/solutions", create: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -63,6 +63,31 @@ Vagrant.configure("2") do |config|
 
 
   config.vm.provision 'file', source: '~/.vimrc', destination: '${HOME}/.vimrc'
+
+  $puppetinstall = <<-SCRIPT
+    rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+    yum install -y puppet
+  SCRIPT
+  config.vm.provision "shell", inline: $puppetinstall, name: "Install Puppet"
+
+  $pythoninstall = <<-SCRIPT
+    yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+    yum update -y
+    yum install -y python36u python36u-libs python36u-devel python36u-pip
+    /usr/bin/ln -s /usr/bin/python3.6 /usr/bin/python3
+    /usr/bin/ln -s /usr/bin/pip3.6 /usr/bin/pip3
+  SCRIPT
+  config.vm.provision "shell", inline: $pythoninstall, name: "Install Python 3"
+
+  config.vm.provision "puppet" do |puppet|
+    puppet.options = "--verbose --debug"
+  end
+
+  $viminstall = <<-SCRIPT
+    curl -L https://copr.fedorainfracloud.org/coprs/mcepl/vim8/repo/epel-7/mcepl-vim8-epel-7.repo -o /etc/yum.repos.d/mcepl-vim8-epel-7.repo
+    yum update -y vim*
+  SCRIPT
+  config.vm.provision "shell", inline: $viminstall, name: "Install Vim 8"
 
   #
   # View the documentation for the provider you are using for more

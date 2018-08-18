@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
   $pythoninstall = <<-SCRIPT
     yum install -y https://centos7.iuscommunity.org/ius-release.rpm
     yum update -y
-    yum install -y python36u python36u-libs python36u-devel python36u-pip
+    yum install -y python36u python36u-libs python36u-devel python36u-pip python36u-tkinter python-devel python-tools
     /usr/bin/ln -s /usr/bin/python3.6 /usr/bin/python3
     /usr/bin/ln -s /usr/bin/pip3.6 /usr/bin/pip3
   SCRIPT
